@@ -1,7 +1,0 @@
-﻿  Viewer.cpp
-     Creating library D:\dev\modelviewer\Viewer\x64\Release\Viewer.lib and object D:\dev\modelviewer\Viewer\x64\Release\Viewer.exp
-  Generating code
-  Previous IPDB not found, fall back to full compilation.
-  All 67 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Finished generating code
-  Viewer.vcxproj -> D:\dev\modelviewer\Viewer\x64\Release\Viewer.exe
