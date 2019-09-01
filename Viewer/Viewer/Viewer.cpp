@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <Windows.h>
+#include "utils\oswindowutils.h"
 #include <tchar.h>
 
 #include <thread>
@@ -13,49 +13,27 @@
 
 #include "gui/guisubsystem.h"
 #include "gui/mainmenu.h"
+#include "processors/mainprocessor.h"
 #include "utils/json.hpp"
 #include "utils/fileutils.h"
-
-// Some globals
-nlohmann::json gSettings;
-
-HWND CreateMainWindow(WNDCLASSEX& wc);
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void BuildMenu(volatile AppState* state);
-
-void MainProcessor(AppState& gAppState);
+#include "Viewer.h"
 
 int main()
 {
 	AppState appState;
+	InitAppState(appState);
 
-	appState.OpenFile = false;
-	appState.ShouldExit = false;
-	appState.Waiting = false;
+	nlohmann::json settings;
+	GetSettings(settings);
 
-	if (FileExists("settings.json"))
-	{
-		std::ifstream settings("settings.json");
-		settings >> gSettings;
-	}
-	else
-	{
-		gSettings["window"]["posx"] = 100;
-		gSettings["window"]["posy"] = 50;
-		gSettings["window"]["width"] = 1500;
-		gSettings["window"]["height"] = 960;
-	}
-
-	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ModelViewer"), NULL };
-
-	HWND hwnd = CreateMainWindow(wc);
+	HWND hwnd = OsWindowUtils::CreateMainWindow(settings);
 
 	// Initialize the Graphics subsystem
 	Renderer* pRenderer = CreateRenderer(hwnd);
 
 	if (pRenderer == nullptr)
 	{
-		::UnregisterClass(wc.lpszClassName, wc.hInstance);
+		OsWindowUtils::CleanupMainWindow();
 		std::cerr << "Unable to create render subsystem!" << std::endl;
 		return -1;
 	}
@@ -93,10 +71,12 @@ int main()
 
 		{
 			MainMenu::Update(appState);
+
+			// A dummy gui here just to bide us over.
 			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
 			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			if (GetScene() != nullptr)
+			if (GetScene() != nullptr && !appState.Waiting)
 			{
 				ImGui::Text("We have a mesh loaded!");
 			}
@@ -115,71 +95,30 @@ int main()
 	}
 
 	::DestroyWindow(hwnd);
-	::UnregisterClass(wc.lpszClassName, wc.hInstance);
+	OsWindowUtils::CleanupMainWindow();
 
 	return 0;
 }
 
-HWND CreateMainWindow(WNDCLASSEX& wc)
+void InitAppState(AppState& appState)
 {
-	auto windowSettings = gSettings["window"];
-
-	// Create application window
-	::RegisterClassEx(&wc);
-	HWND hwnd = ::CreateWindow(wc.lpszClassName,
-		_T("Model Viewer"),
-		WS_OVERLAPPEDWINDOW,
-		windowSettings["posx"],
-		windowSettings["posy"],
-		windowSettings["width"],
-		windowSettings["height"],
-		NULL, NULL,
-		wc.hInstance,
-		NULL);
-
-	return hwnd;
+	appState.OpenFile = false;
+	appState.ShouldExit = false;
+	appState.Waiting = false;
 }
 
-extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+void GetSettings(nlohmann::json& settings)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+	if (FileExists("settings.json"))
 	{
-		return true;
+		std::ifstream settingsStream("settings.json");
+		settingsStream >> settings;
 	}
-
-	switch (msg)
+	else
 	{
-	case WM_SIZE:
-		if (wParam != SIZE_MINIMIZED)
-			ResizeRenderer((UINT)LOWORD(lParam), (UINT)HIWORD(lParam));
-		return 0;
-	case WM_SYSCOMMAND:
-		if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-			return 0;
-		break;
-	case WM_DESTROY:
-		::PostQuitMessage(0);
-		return 0;
+		settings["window"]["posx"] = 100;
+		settings["window"]["posy"] = 50;
+		settings["window"]["width"] = 1500;
+		settings["window"]["height"] = 960;
 	}
-	return ::DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-void MainProcessor(AppState& appState)
-{
-	while (appState.ShouldExit == false)
-	{
-		if (appState.OpenFile)
-		{
-			// open the file
-			char filename[1024];
-			if (OSOpenFile(filename))
-			{
-				OpenSceneFile(filename);
-				appState.OpenFile = false;
-				appState.Waiting = false;
-			}
-		}
-	}
-
 }

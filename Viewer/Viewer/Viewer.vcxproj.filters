@@ -25,6 +25,9 @@
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{1e2556c4-645c-4064-9b3d-af2a3db4a932}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\processors">
+      <UniqueIdentifier>{b59002d0-0f24-447f-8d2d-1dae027e9bbc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Viewer.cpp">
@@ -59,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="gui\guisubsystem.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="processors\mainprocessor.cpp">
+      <Filter>Source Files\processors</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\oswindowutils.cpp">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +125,15 @@
     </ClInclude>
     <ClInclude Include="gui\guisubsystem.h">
       <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="processors\mainprocessor.h">
+      <Filter>Source Files\processors</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\oswindowutils.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
