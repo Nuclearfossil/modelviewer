@@ -13,10 +13,23 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="dlls">
+      <UniqueIdentifier>{d6195cf8-ee2f-43d4-b0b6-49a99854c40b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Viewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\extern\assimp\Release\bin\assimp-vc141-mt.dll">
+      <Filter>dlls</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\extern\assimp\Debug\bin\assimp-vc141-mtd.dll">
+      <Filter>dlls</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
