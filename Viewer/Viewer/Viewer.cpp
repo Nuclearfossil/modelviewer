@@ -22,6 +22,7 @@ int main()
 
 	if (!scene)
 	{
+		std::cout << "Unable to open file " << pFile << std::endl;
 		return -1;
 	}
 
