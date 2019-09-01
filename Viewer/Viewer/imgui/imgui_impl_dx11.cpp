@@ -37,8 +37,8 @@
 #endif
 
 // DirectX data
-static ID3D11Device*            g_pd3dDevice = NULL;
-static ID3D11DeviceContext*     g_pd3dDeviceContext = NULL;
+static ID3D11Device*            gD3DDevice = NULL;
+static ID3D11DeviceContext*     gD3DDeviceContext = NULL;
 static IDXGIFactory*            g_pFactory = NULL;
 static ID3D11Buffer*            g_pVB = NULL;
 static ID3D11Buffer*            g_pIB = NULL;
@@ -103,7 +103,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
     if (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f)
         return;
 
-    ID3D11DeviceContext* ctx = g_pd3dDeviceContext;
+    ID3D11DeviceContext* ctx = gD3DDeviceContext;
 
     // Create and grow vertex/index buffers if needed
     if (!g_pVB || g_VertexBufferSize < draw_data->TotalVtxCount)
@@ -117,7 +117,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
         desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         desc.MiscFlags = 0;
-        if (g_pd3dDevice->CreateBuffer(&desc, NULL, &g_pVB) < 0)
+        if (gD3DDevice->CreateBuffer(&desc, NULL, &g_pVB) < 0)
             return;
     }
     if (!g_pIB || g_IndexBufferSize < draw_data->TotalIdxCount)
@@ -130,7 +130,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
         desc.ByteWidth = g_IndexBufferSize * sizeof(ImDrawIdx);
         desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        if (g_pd3dDevice->CreateBuffer(&desc, NULL, &g_pIB) < 0)
+        if (gD3DDevice->CreateBuffer(&desc, NULL, &g_pIB) < 0)
             return;
     }
 
@@ -306,7 +306,7 @@ static void ImGui_ImplDX11_CreateFontsTexture()
         subResource.pSysMem = pixels;
         subResource.SysMemPitch = desc.Width * 4;
         subResource.SysMemSlicePitch = 0;
-        g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
+        gD3DDevice->CreateTexture2D(&desc, &subResource, &pTexture);
 
         // Create texture view
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -315,7 +315,7 @@ static void ImGui_ImplDX11_CreateFontsTexture()
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels = desc.MipLevels;
         srvDesc.Texture2D.MostDetailedMip = 0;
-        g_pd3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &g_pFontTextureView);
+        gD3DDevice->CreateShaderResourceView(pTexture, &srvDesc, &g_pFontTextureView);
         pTexture->Release();
     }
 
@@ -334,13 +334,13 @@ static void ImGui_ImplDX11_CreateFontsTexture()
         desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
         desc.MinLOD = 0.f;
         desc.MaxLOD = 0.f;
-        g_pd3dDevice->CreateSamplerState(&desc, &g_pFontSampler);
+        gD3DDevice->CreateSamplerState(&desc, &g_pFontSampler);
     }
 }
 
 bool    ImGui_ImplDX11_CreateDeviceObjects()
 {
-    if (!g_pd3dDevice)
+    if (!gD3DDevice)
         return false;
     if (g_pFontSampler)
         ImGui_ImplDX11_InvalidateDeviceObjects();
@@ -384,7 +384,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "main", "vs_4_0", 0, 0, &g_pVertexShaderBlob, NULL);
         if (g_pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
-        if (g_pd3dDevice->CreateVertexShader((DWORD*)g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), NULL, &g_pVertexShader) != S_OK)
+        if (gD3DDevice->CreateVertexShader((DWORD*)g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), NULL, &g_pVertexShader) != S_OK)
             return false;
 
         // Create the input layout
@@ -394,7 +394,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
             { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
-        if (g_pd3dDevice->CreateInputLayout(local_layout, 3, g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), &g_pInputLayout) != S_OK)
+        if (gD3DDevice->CreateInputLayout(local_layout, 3, g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), &g_pInputLayout) != S_OK)
             return false;
 
         // Create the constant buffer
@@ -405,7 +405,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
             desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
             desc.MiscFlags = 0;
-            g_pd3dDevice->CreateBuffer(&desc, NULL, &g_pVertexConstantBuffer);
+            gD3DDevice->CreateBuffer(&desc, NULL, &g_pVertexConstantBuffer);
         }
     }
 
@@ -430,7 +430,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         D3DCompile(pixelShader, strlen(pixelShader), NULL, NULL, NULL, "main", "ps_4_0", 0, 0, &g_pPixelShaderBlob, NULL);
         if (g_pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
-        if (g_pd3dDevice->CreatePixelShader((DWORD*)g_pPixelShaderBlob->GetBufferPointer(), g_pPixelShaderBlob->GetBufferSize(), NULL, &g_pPixelShader) != S_OK)
+        if (gD3DDevice->CreatePixelShader((DWORD*)g_pPixelShaderBlob->GetBufferPointer(), g_pPixelShaderBlob->GetBufferSize(), NULL, &g_pPixelShader) != S_OK)
             return false;
     }
 
@@ -447,7 +447,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
         desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
         desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-        g_pd3dDevice->CreateBlendState(&desc, &g_pBlendState);
+        gD3DDevice->CreateBlendState(&desc, &g_pBlendState);
     }
 
     // Create the rasterizer state
@@ -458,7 +458,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         desc.CullMode = D3D11_CULL_NONE;
         desc.ScissorEnable = true;
         desc.DepthClipEnable = true;
-        g_pd3dDevice->CreateRasterizerState(&desc, &g_pRasterizerState);
+        gD3DDevice->CreateRasterizerState(&desc, &g_pRasterizerState);
     }
 
     // Create depth-stencil State
@@ -472,7 +472,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         desc.FrontFace.StencilFailOp = desc.FrontFace.StencilDepthFailOp = desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
         desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
         desc.BackFace = desc.FrontFace;
-        g_pd3dDevice->CreateDepthStencilState(&desc, &g_pDepthStencilState);
+        gD3DDevice->CreateDepthStencilState(&desc, &g_pDepthStencilState);
     }
 
     ImGui_ImplDX11_CreateFontsTexture();
@@ -482,7 +482,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 
 void    ImGui_ImplDX11_InvalidateDeviceObjects()
 {
-    if (!g_pd3dDevice)
+    if (!gD3DDevice)
         return;
 
     if (g_pFontSampler) { g_pFontSampler->Release(); g_pFontSampler = NULL; }
@@ -517,14 +517,14 @@ bool    ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_co
         if (pDXGIDevice->GetParent(IID_PPV_ARGS(&pDXGIAdapter)) == S_OK)
             if (pDXGIAdapter->GetParent(IID_PPV_ARGS(&pFactory)) == S_OK)
             {
-                g_pd3dDevice = device;
-                g_pd3dDeviceContext = device_context;
+                gD3DDevice = device;
+                gD3DDeviceContext = device_context;
                 g_pFactory = pFactory;
             }
     if (pDXGIDevice) pDXGIDevice->Release();
     if (pDXGIAdapter) pDXGIAdapter->Release();
-    g_pd3dDevice->AddRef();
-    g_pd3dDeviceContext->AddRef();
+    gD3DDevice->AddRef();
+    gD3DDeviceContext->AddRef();
 
     return true;
 }
@@ -533,8 +533,8 @@ void ImGui_ImplDX11_Shutdown()
 {
     ImGui_ImplDX11_InvalidateDeviceObjects();
     if (g_pFactory) { g_pFactory->Release(); g_pFactory = NULL; }
-    if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
-    if (g_pd3dDeviceContext) { g_pd3dDeviceContext->Release(); g_pd3dDeviceContext = NULL; }
+    if (gD3DDevice) { gD3DDevice->Release(); gD3DDevice = NULL; }
+    if (gD3DDeviceContext) { gD3DDeviceContext->Release(); gD3DDeviceContext = NULL; }
 }
 
 void ImGui_ImplDX11_NewFrame()

@@ -22,6 +22,9 @@
     <Filter Include="Source Files\utils">
       <UniqueIdentifier>{0fe1b525-a2d1-4a88-bdda-b6a1f89089f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{1e2556c4-645c-4064-9b3d-af2a3db4a932}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Viewer.cpp">
@@ -50,6 +53,12 @@
     </ClCompile>
     <ClCompile Include="utils\fileutils.cpp">
       <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\mainmenu.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guisubsystem.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +107,15 @@
     </ClInclude>
     <ClInclude Include="utils\json.hpp">
       <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\mainmenu.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\appstate.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guisubsystem.h">
+      <Filter>Source Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

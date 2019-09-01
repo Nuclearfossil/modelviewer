@@ -4,4 +4,5 @@
 
 struct aiScene;
 
-const aiScene* OpenFile(const std::string& fileName);
+bool OpenSceneFile(const char* sourceFilename);
+const aiScene* GetScene();
