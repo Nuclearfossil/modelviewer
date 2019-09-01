@@ -1,0 +1,11 @@
+prefix=D:/dev/assimp/out/install/x64-Release
+exec_prefix=D:/dev/assimp/out/install/x64-Release/
+libdir=D:/dev/assimp/out/install/x64-Release/lib
+includedir=D:/dev/assimp/out/install/x64-Release/../include/include
+
+Name: Assimp
+Description: Import various well-known 3D model formats in an uniform manner.
+Version: 5.0.0
+Libs: -L${libdir} -lassimp
+Libs.private:  
+Cflags: -I${includedir}
