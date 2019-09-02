@@ -5,17 +5,19 @@
 
 #include <thread>
 
-#include "imgui.h"
-#include "imgui_impl_win32.h"
+//#include "imgui.h"
+//#include "imgui_impl_win32.h"
 
 #include "fbxLoader.h"
 #include "renderer.h"
 
 #include "gui/guisubsystem.h"
 #include "gui/mainmenu.h"
+#include "gui/applog.h"
 #include "processors/mainprocessor.h"
 #include "utils/json.hpp"
 #include "utils/fileutils.h"
+
 #include "Viewer.h"
 
 int main()
@@ -81,7 +83,10 @@ int main()
 				ImGui::Text("We have a mesh loaded!");
 			}
 
-			ImGui::End();	
+			ImGui::End();
+
+			bool value = true;;
+			ShowExampleAppLog(&value);
 		}
 
 		GuiSubsystem::End();

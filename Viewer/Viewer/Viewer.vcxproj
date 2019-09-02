@@ -159,6 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fbxLoader.cpp" />
+    <ClCompile Include="gui\applog.cpp" />
     <ClCompile Include="gui\guisubsystem.cpp" />
     <ClCompile Include="gui\mainmenu.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -182,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fbxLoader.h" />
+    <ClInclude Include="gui\applog.h" />
     <ClInclude Include="gui\appstate.h" />
     <ClInclude Include="gui\guisubsystem.h" />
     <ClInclude Include="gui\mainmenu.h" />
