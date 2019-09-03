@@ -48,11 +48,13 @@ int main()
 	std::thread mainProcessor(MainProcessor, std::ref(appState));
 
 	// Set up the gui subsystem
+	gAppLog.Add("Initializing the GUI Subsystem\n");
 	GuiSubsystem::Init(hwnd);
 
 	pRenderer->InitGui();
 
 	// Main loop
+	gAppLog.Add("Beginning the Message Pump\n");
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
 	while (msg.message != WM_QUIT && !appState.ShouldExit)
@@ -86,7 +88,7 @@ int main()
 			ImGui::End();
 
 			bool value = true;;
-			ShowExampleAppLog(&value);
+			ShowExampleAppLog(&value, &gAppLog);
 		}
 
 		GuiSubsystem::End();

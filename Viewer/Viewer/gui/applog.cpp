@@ -1,32 +1,45 @@
 
 #include "applog.h"
 
-AppLog::AppLog()
+LogData gAppLog;
+
+LogData::LogData()
 {
-	AutoScroll = true;
-	Clear();
+	LineOffsets.push_back(0);
 }
 
-void AppLog::Clear()
+void LogData::Clear()
 {
-	Buf.clear();
+	Buffer.clear();
 	LineOffsets.clear();
 	LineOffsets.push_back(0);
 }
 
-void AppLog::AddLog(const char* fmt, ...) IM_FMTARGS(2)
+void LogData::Add(const char* fmt, ...) IM_FMTARGS(2)
 {
-	int old_size = Buf.size();
+	int old_size = Buffer.size();
 	va_list args;
 	va_start(args, fmt);
-	Buf.appendfv(fmt, args);
+	Buffer.appendfv(fmt, args);
 	va_end(args);
-	for (int new_size = Buf.size(); old_size < new_size; old_size++)
-		if (Buf[old_size] == '\n')
+	for (int new_size = Buffer.size(); old_size < new_size; old_size++)
+		if (Buffer[old_size] == '\n')
 			LineOffsets.push_back(old_size + 1);
 }
 
-void AppLog::Draw(const char* title, bool* p_open)
+
+LogViewer::LogViewer(LogData* data)
+{
+	Data = data;
+	AutoScroll = true;
+}
+
+void LogViewer::Clear()
+{
+	Data->Clear();
+}
+
+void LogViewer::Draw(const char* title, bool* p_open)
 {
 	if (!ImGui::Begin(title, p_open))
 	{
@@ -60,18 +73,18 @@ void AppLog::Draw(const char* title, bool* p_open)
 		ImGui::LogToClipboard();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-	const char* buf = Buf.begin();
-	const char* buf_end = Buf.end();
+	const char* buf = Data->Buffer.begin();
+	const char* buf_end = Data->Buffer.end();
 	if (Filter.IsActive())
 	{
 		// In this example we don't use the clipper when Filter is enabled.
 		// This is because we don't have a random access on the result on our filter.
 		// A real application processing logs with ten of thousands of entries may want to store the result of search/filter.
 		// especially if the filtering function is not trivial (e.g. reg-exp).
-		for (int line_no = 0; line_no < LineOffsets.Size; line_no++)
+		for (int line_no = 0; line_no < Data->LineOffsets.Size; line_no++)
 		{
-			const char* line_start = buf + LineOffsets[line_no];
-			const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+			const char* line_start = buf + Data->LineOffsets[line_no];
+			const char* line_end = (line_no + 1 < Data->LineOffsets.Size) ? (buf + Data->LineOffsets[line_no + 1] - 1) : buf_end;
 			if (Filter.PassFilter(line_start, line_end))
 				ImGui::TextUnformatted(line_start, line_end);
 		}
@@ -88,13 +101,13 @@ void AppLog::Draw(const char* title, bool* p_open)
 		// When using the filter (in the block of code above) we don't have random access into the data to display anymore, which is why we don't use the clipper.
 		// Storing or skimming through the search result would make it possible (and would be recommended if you want to search through tens of thousands of entries)
 		ImGuiListClipper clipper;
-		clipper.Begin(LineOffsets.Size);
+		clipper.Begin(Data->LineOffsets.Size);
 		while (clipper.Step())
 		{
 			for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++)
 			{
-				const char* line_start = buf + LineOffsets[line_no];
-				const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+				const char* line_start = buf + Data->LineOffsets[line_no];
+				const char* line_end = (line_no + 1 < Data->LineOffsets.Size) ? (buf + Data->LineOffsets[line_no + 1] - 1) : buf_end;
 				ImGui::TextUnformatted(line_start, line_end);
 			}
 		}
@@ -109,28 +122,9 @@ void AppLog::Draw(const char* title, bool* p_open)
 	ImGui::End();
 };
 
-void ShowExampleAppLog(bool* p_open)
+void ShowExampleAppLog(bool* p_open, LogData* logData)
 {
-	static AppLog log;
-
-	// For the demo: add a debug button _BEFORE_ the normal log window contents
-	// We take advantage of a rarely used feature: multiple calls to Begin()/End() are appending to the _same_ window.
-	// Most of the contents of the window will be added by the log.Draw() call.
-	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Example: Log", p_open);
-	if (ImGui::SmallButton("[Debug] Add 5 entries"))
-	{
-		static int counter = 0;
-		for (int n = 0; n < 5; n++)
-		{
-			const char* categories[3] = { "info", "warn", "error" };
-			const char* words[] = { "Bumfuzzled", "Cattywampus", "Snickersnee", "Abibliophobia", "Absquatulate", "Nincompoop", "Pauciloquent" };
-			log.AddLog("[%05d] [%s] Hello, current time is %.1f, here's a word: '%s'\n",
-				ImGui::GetFrameCount(), categories[counter % IM_ARRAYSIZE(categories)], ImGui::GetTime(), words[counter % IM_ARRAYSIZE(words)]);
-			counter++;
-		}
-	}
-	ImGui::End();
+	static LogViewer log(logData);
 
 	// Actually call in the regular Log helper (which will Begin() into the same window as we just did)
 	log.Draw("Example: Log", p_open);
